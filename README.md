@@ -1,17 +1,17 @@
-# AutoMLogReg — ML Visualizer
+# MLearning_Visualizer_UI
 
-Aplicación de escritorio en **Python** para **clasificación** con aprendizaje incremental y **visualización en tiempo real**. Permite cargar tablas (Excel o CSV), elegir variables predictoras y objetivo, y entrenar un modelo tipo **regresión logística** (mediante `SGDClassifier` con pérdida logarítmica) mientras se observan métricas en vivo.
+Aplicación de escritorio en **Python** para **clasificación** con aprendizaje incremental y **visualización en tiempo real**. Permite cargar tablas (Excel o CSV), elegir variables predictoras y objetivo, y entrenar un modelo tipo **regresión logística** (mediante `SGDClassifier` con pérdida logarítmica, equivalente a regresión logística por descenso de gradiente), mientras se observan métricas en vivo por medio de 6 gráficas que se actualizan por épocas.
 
 ## Requisitos
 
 - **Python 3.8+** (recomendado 3.10 o superior).
 - **Tkinter**: en Windows suele venir con la instalación oficial de Python. En Linux puede requerirse el paquete del sistema (`python3-tk`). La línea `tkinter>=3.0.0` en `requirements.txt` no siempre se instala vía `pip`; si falla, omítela e instala Tk desde el sistema.
-- Dependencias Python: ver [`requirements.txt`](requirements.txt) (`pandas`, `numpy`, `scikit-learn`, `matplotlib`, `openpyxl`, `joblib`).
+- Dependencias Python: ver [`requirements.txt`](requirements.txt) (`pandas`, `numpy`, `scikit-learn`, `matplotlib`, `openpyxl`, `joblib`, `tkinter`).
 
 ## Instalación
 
 ```bash
-cd AutoMLogReg
+cd MLearning_Visualizer_UI
 python -m venv .venv
 # Windows:
 .venv\Scripts\activate
