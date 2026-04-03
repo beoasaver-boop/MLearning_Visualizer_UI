@@ -11,6 +11,7 @@ Aplicación de escritorio en **Python** para **clasificación** con aprendizaje 
 ## Instalación
 
 ```bash
+git clone https://github.com/beoasaver-boop/MLearning_Visualizer_UI.git
 cd MLearning_Visualizer_UI
 python -m venv .venv
 # Windows:
