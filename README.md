@@ -70,4 +70,4 @@ Opcionalmente, coloca un archivo **`icon.ico`** junto a `main.py` para el icono 
 
 ## Licencia
 
-Si el repositorio no define licencia, aclárala según tu caso antes de redistribuir el código.
+No requiere de licenciamiento y es de código abierto para uso de todos.
