@@ -12,3 +12,4 @@ ENV/
 # Archivos de sistema/configuración local
 .DS_Store
 .env
+.vscode
