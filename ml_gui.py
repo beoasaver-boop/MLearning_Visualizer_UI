@@ -109,6 +109,8 @@ class MLVisualizerApp:
                                      insertbackground=DARK_THEME['fg'])
         self.features_text.pack(padx=10, pady=5)
         self.features_text.insert('1.0', 'Ejemplo: tenure, age, address, income')
+        # Borrar el texto incial
+        self.features_text.bind("<FocusIn>", lambda e: self.features_text.delete('1.0', tk.END) if self.features_text.get('1.0', 'end-1c') == 'Ejemplo: tenure, age, address, income' else None)
         
         # Variable dependiente
         tk.Label(vars_frame, text="Variable Dependiente (Target):",
