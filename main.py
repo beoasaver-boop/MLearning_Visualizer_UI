@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-ML Visualizer - Aplicación de Machine Learning con Interfaz Gráfica
+ML_Visualizer_UI
+Aplicación de Machine Learning con Interfaz Gráfica
 Permite cargar datos, seleccionar variables y entrenar modelos con visualización en tiempo real
 """
 
