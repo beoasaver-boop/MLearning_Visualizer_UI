@@ -11,7 +11,7 @@ class MenuPrincipal:
         self.on_model_selected = on_model_selected
         
         self.root.title("ML Visualizer - Selección de Modelo")
-        self.root.geometry("600x500")
+        self.root.geometry("1400x720")
         self.root.configure(bg=DARK_THEME['bg'])
         
         # Centrar ventana
@@ -22,8 +22,8 @@ class MenuPrincipal:
     def center_window(self):
         """Centrar la ventana en la pantalla"""
         self.root.update_idletasks()
-        width = 600
-        height = 500
+        width = 1400
+        height = 720
         x = (self.root.winfo_screenwidth() // 2) - (width // 2)
         y = (self.root.winfo_screenheight() // 2) - (height // 2)
         self.root.geometry(f'{width}x{height}+{x}+{y}')

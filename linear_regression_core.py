@@ -43,9 +43,9 @@ class LinearRegressionVisualizer:
         self.log_status(f"📂 Cargando archivo: {file_path}")
         
         if file_path.endswith('.xlsx') or file_path.endswith('.xls'):
-            self.df = pd.read_excel(file_path)
+            self.df = pd.read_excel(file_path).dropna()
         elif file_path.endswith('.csv'):
-            self.df = pd.read_csv(file_path)
+            self.df = pd.read_csv(file_path).dropna()
         else:
             raise ValueError("Formato no soportado. Use .xlsx, .xls o .csv")
         
