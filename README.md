@@ -8,17 +8,28 @@ Aplicación de escritorio en **Python** para **clasificación** con aprendizaje 
 - **Tkinter**: en Windows suele venir con la instalación oficial de Python. En Linux puede requerirse el paquete del sistema (`python3-tk`). La línea `tkinter>=3.0.0` en `requirements.txt` no siempre se instala vía `pip`; si falla, omítela e instala Tk desde el sistema.
 - Dependencias Python: ver [`requirements.txt`](requirements.txt) (`pandas`, `numpy`, `scikit-learn`, `matplotlib`, `openpyxl`, `joblib`, `tkinter`).
 
-## Instalación
+## Instalación en Windows
 
 ```bash
+# Instalando la interfaz en tu windows:
 git clone https://github.com/beoasaver-boop/MLearning_Visualizer_UI.git
 cd MLearning_Visualizer_UI
 python -m venv .venv
-# Windows:
 .venv\Scripts\activate
-# Linux/macOS:
-# source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+# Instalación en Linux / MacOS
 
+```bash
+# Linux/macOS:
+sudo apt update
+sudo apt install python3 python3-tk
+git clone https://github.com/beoasaver-boop/MLearning_Visualizer_UI.git
+cd MLearning_Visualizer_UI
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
