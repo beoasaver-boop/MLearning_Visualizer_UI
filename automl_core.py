@@ -97,7 +97,7 @@ class AutoMLVisualizer:
         else:
             self.log_status("✅ No hay valores nulos")
         
-        # Codificación de variables categóricas
+        # Codificación de variables categóricas en X
         categorical_cols = self.X.select_dtypes(include=['object', 'category']).columns
         
         if len(categorical_cols) > 0:
@@ -107,18 +107,34 @@ class AutoMLVisualizer:
                 self.X[col] = le.fit_transform(self.X[col].astype(str))
                 self.label_encoders[col] = le
         
-        # Procesar variable objetivo
-        if self.y.dtype == 'object' or self.y.dtype.name == 'category':
+        # ==== SECCIÓN MODIFICADA: Procesar variable objetivo ====
+        self.log_status("🎯 Procesando variable objetivo...")
+        
+        # Convertir a numpy array si es necesario y codificar
+        if isinstance(self.y, pd.Series):
+            y_values = self.y.values
+        else:
+            y_values = self.y
+        
+        # Verificar si es categórica (strings/objetos)
+        if y_values.dtype == 'object' or pd.api.types.is_string_dtype(y_values):
             self.target_encoder = LabelEncoder()
-            self.y = self.target_encoder.fit_transform(self.y)
+            self.y = self.target_encoder.fit_transform(y_values)
             self.n_classes = len(self.target_encoder.classes_)
             self.is_multiclass = self.n_classes > 2
-            self.log_status(f"🎯 Target codificado: {self.n_classes} clases")
+            self.log_status(f"✅ Target codificado: {self.n_classes} clases - {list(self.target_encoder.classes_)}")
         else:
+            # Si es numérica, asegurar que es entero para clasificación
+            self.y = y_values.astype(int)
             self.n_classes = len(np.unique(self.y))
             self.is_multiclass = self.n_classes > 2
+            self.log_status(f"✅ Target numérico: {self.n_classes} clases únicas")
         
-        # Escalado
+        # Verificar que los valores son 0,1,2,... (para clasificación)
+        unique_values = np.unique(self.y)
+        self.log_status(f"   Valores únicos en target: {unique_values}")
+        
+        # Escalado de características
         self.X_scaled = self.scaler.fit_transform(self.X)
         self.log_status("📏 Escalado completado")
         
@@ -127,12 +143,16 @@ class AutoMLVisualizer:
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.X_scaled, self.y, test_size=test_size, random_state=42, stratify=self.y
         )
-        self.log_status(f"✅ Datos divididos: Train={len(self.X_train)}, Test={len(self.X_test)}")
+        self.y_train = np.array(self.y_train)
+        self.y_test = np.array(self.y_test)
+        self.log_status(f"Datos divididos: Train={len(self.X_train)}, Test={len(self.X_test)}")
         
     def train_and_visualize(self, n_epochs=100):
         """Entrena el modelo y envía visualizaciones a la GUI"""
         self.log_status("🚀 Iniciando entrenamiento...")
-        
+        # Asegurar que y_train y y_test son arrays de numpy
+        y_train_array = self.y_train if isinstance(self.y_train, np.ndarray) else np.array(self.y_train)
+        y_test_array = self.y_test if isinstance(self.y_test, np.ndarray) else np.array(self.y_test)
         # Configurar modelo
         self.model = SGDClassifier(
             loss='log_loss',
@@ -144,48 +164,45 @@ class AutoMLVisualizer:
             warm_start=True,
             random_state=42
         )
-        
         # Métricas
         train_losses = []
         test_losses = []
         train_accuracies = []
         test_accuracies = []
-        
         for epoch in range(n_epochs):
             # Entrenar
-            self.model.partial_fit(self.X_train, self.y_train, classes=np.unique(self.y))
-            
+            self.model.partial_fit(self.X_train, y_train_array, classes=np.unique(self.y))
             # Calcular métricas
             train_probs = self.model.predict_proba(self.X_train)
             test_probs = self.model.predict_proba(self.X_test)
             
             if self.is_multiclass:
-                train_loss = -np.mean([np.log(train_probs[i, self.y_train[i]] + 1e-10) for i in range(len(self.y_train))])
-                test_loss = -np.mean([np.log(test_probs[i, self.y_test[i]] + 1e-10) for i in range(len(self.y_test))])
+                train_loss = -np.mean([np.log(train_probs[i, y_train_array[i]] + 1e-10) for i in range(len(y_train_array))])
+                test_loss = -np.mean([np.log(test_probs[i, y_test_array[i]] + 1e-10) for i in range(len(y_test_array))])
             else:
-                train_loss = -np.mean(self.y_train * np.log(train_probs[:, 1] + 1e-10) + 
-                                     (1 - self.y_train) * np.log(1 - train_probs[:, 1] + 1e-10))
-                test_loss = -np.mean(self.y_test * np.log(test_probs[:, 1] + 1e-10) + 
-                                    (1 - self.y_test) * np.log(1 - test_probs[:, 1] + 1e-10))
-            
+                # Para binario, asegurar que y es entero
+                train_loss = -np.mean(y_train_array * np.log(train_probs[:, 1] + 1e-10) + 
+                                    (1 - y_train_array) * np.log(1 - train_probs[:, 1] + 1e-10))
+                test_loss = -np.mean(y_test_array * np.log(test_probs[:, 1] + 1e-10) + 
+                                    (1 - y_test_array) * np.log(1 - test_probs[:, 1] + 1e-10))
+                                    
             train_losses.append(train_loss)
             test_losses.append(test_loss)
             
-            train_acc = accuracy_score(self.y_train, self.model.predict(self.X_train))
-            test_acc = accuracy_score(self.y_test, self.model.predict(self.X_test))
+            train_acc = accuracy_score(y_train_array, self.model.predict(self.X_train))
+            test_acc = accuracy_score(y_test_array, self.model.predict(self.X_test))
             train_accuracies.append(train_acc)
             test_accuracies.append(test_acc)
             
-            # Enviar a GUI para actualizar gráficas
+            # Enviar a GUI
             if self.plot_callback:
                 self.plot_callback(epoch, n_epochs, train_losses, test_losses, 
-                                  train_accuracies, test_accuracies)
+                                train_accuracies, test_accuracies)
             
             # Actualizar estado cada 10 epochs
             if (epoch + 1) % 10 == 0:
                 self.log_status(f"Epoch {epoch+1}/{n_epochs} - Test Acc: {test_acc:.4f}")
         
-        # Resultados finales
         self.log_status("✅ Entrenamiento completado!")
         
         return {
