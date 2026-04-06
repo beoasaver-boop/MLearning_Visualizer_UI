@@ -17,11 +17,8 @@ Aplicación de escritorio en **Python** para **machine learning** (clasificació
   - Residuos/Matriz de confusión
   - Sobreajuste (overfitting)
 
-- 🏗️ **Arquitectura modular** — Código bien estructurado, fácil de mantener y extender
 
 ## 📁 Estructura del proyecto (NUEVA)
-
-Ver [ARCHITECTURE.md](ARCHITECTURE.md) para detalles completos de la arquitec tura modular.
 
 ```
 MLearning_Visualizer_UI/
