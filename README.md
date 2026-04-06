@@ -1,6 +1,38 @@
 # MLearning_Visualizer_UI
 
-Aplicación de escritorio en **Python** para **clasificación** con aprendizaje incremental y **visualización en tiempo real**. Permite cargar tablas (Excel o CSV), elegir variables predictoras y objetivo, y entrenar un modelo tipo **regresión logística** (mediante `SGDClassifier` con pérdida logarítmica, equivalente a regresión logística por descenso de gradiente), mientras se observan métricas en vivo por medio de 6 gráficas que se actualizan por épocas.
+Aplicación de escritorio en **Python** para **machine learning** (clasificación y regresión) con aprendizaje incremental y **visualización en tiempo real**. Permite cargar tablas (Excel o CSV), elegir variables predictoras y objetivo, y entrenar un modelo mientras se observan métricas en vivo mediante 6 gráficas que se actualizan por épocas.
+
+## ✨ Características principales
+
+- 🎯 **Tres tipos de modelos**:
+  - Regresión Logística (clasificación binaria/multiclase)
+  - Regresión Lineal Simple (1 variable independiente)
+  - Regresión Lineal Múltiple (múltiples variables independientes)
+
+- 📊 **6 gráficas en tiempo real**:
+  - Pérdida (Loss)
+  - Precisión/R² Score
+  - Evolución de coeficientes
+  - Importancia de características
+  - Residuos/Matriz de confusión
+  - Sobreajuste (overfitting)
+
+- 🏗️ **Arquitectura modular** — Código bien estructurado, fácil de mantener y extender
+
+## 📁 Estructura del proyecto (NUEVA)
+
+Ver [ARCHITECTURE.md](ARCHITECTURE.md) para detalles completos de la arquitec tura modular.
+
+```
+MLearning_Visualizer_UI/
+├── config/               # Configuración de temas
+├── ml_gui/              # Interfaz gráfica (separada en módulos)
+├── analytics/           # Lógica de ML (modelos)
+├── utils/               # Funciones auxiliares
+├── main.py              # Punto de entrada
+├── menu_principal.py    # Menú de selección
+└── requirements.txt
+```
 
 ## Requisitos
 

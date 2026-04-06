@@ -3,7 +3,8 @@ Menú Principal - Selección de tipo de modelo
 """
 import tkinter as tk
 from tkinter import ttk
-from styles import DARK_THEME
+from config import DARK_THEME
+from utils import helpers
 
 class MenuPrincipal:
     def __init__(self, root, on_model_selected):
@@ -15,18 +16,9 @@ class MenuPrincipal:
         self.root.configure(bg=DARK_THEME['bg'])
         
         # Centrar ventana
-        self.center_window()
+        helpers.center_window(self.root, 1400, 720)
         
         self.create_widgets()
-    
-    def center_window(self):
-        """Centrar la ventana en la pantalla"""
-        self.root.update_idletasks()
-        width = 1400
-        height = 720
-        x = (self.root.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.root.winfo_screenheight() // 2) - (height // 2)
-        self.root.geometry(f'{width}x{height}+{x}+{y}')
     
     def create_widgets(self):
         """Crear widgets del menú principal"""

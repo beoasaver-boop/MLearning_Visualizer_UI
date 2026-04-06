@@ -4,10 +4,12 @@ ML Visualizer - Aplicación de Machine Learning con Interfaz Gráfica
 Ahora con soporte para Regresión Logística, Lineal Simple y Lineal Múltiple
 """
 
-import sys
 import tkinter as tk
+import analytics
+import config
+import ml_gui
+import utils
 from menu_principal import MenuPrincipal
-from ml_gui import MLVisualizerApp
 
 def start_ml_app(model_type):
     """Inicia la aplicación principal con el tipo de modelo seleccionado"""
@@ -27,7 +29,7 @@ def start_ml_app(model_type):
     root.geometry(f"1400x900+{x}+{y}")
     
     # Iniciar aplicación con el modelo seleccionado
-    app = MLVisualizerApp(root, model_type=model_type)
+    app = ml_gui.MLVisualizerApp(root, model_type=model_type)
     
     # Ejecutar
     root.mainloop()

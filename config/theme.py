@@ -1,4 +1,6 @@
-# styles.py - Configuración de tema oscuro
+"""
+Configuración de temas y estilos visuales
+"""
 
 DARK_THEME = {
     'bg': '#1e1e1e',           # Fondo principal

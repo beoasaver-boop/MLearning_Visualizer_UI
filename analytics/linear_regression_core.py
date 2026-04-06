@@ -28,7 +28,7 @@ class LinearRegressionVisualizer:
         self.label_encoders = {}
         self.model = None
         self.feature_names = []
-        self.is_simple = False  # True = regresión simple, False = múltiple
+        self.is_simple = False
         self.status_callback = status_callback
         self.plot_callback = plot_callback
         
@@ -75,7 +75,6 @@ class LinearRegressionVisualizer:
         """Limpieza y preprocesamiento automático de datos"""
         self.log_status("🔍 Limpiando y preprocesando datos...")
         
-        # Manejo de valores nulos en X
         null_counts = self.X.isnull().sum()
         if null_counts.sum() > 0:
             self.log_status(f"⚠️ Encontrados {null_counts.sum()} valores nulos en features")
@@ -99,14 +98,12 @@ class LinearRegressionVisualizer:
         else:
             self.log_status("✅ No hay valores nulos en features")
         
-        # Manejo de nulos en y (target)
         if self.y.isnull().sum() > 0:
             self.log_status(f"⚠️ {self.y.isnull().sum()} valores nulos en target, eliminando...")
             valid_idx = ~self.y.isnull()
             self.X = self.X[valid_idx]
             self.y = self.y[valid_idx]
         
-        # Codificación de variables categóricas en X
         categorical_cols = self.X.select_dtypes(include=['object', 'category']).columns
         
         if len(categorical_cols) > 0:
@@ -116,7 +113,6 @@ class LinearRegressionVisualizer:
                 self.X[col] = le.fit_transform(self.X[col].astype(str))
                 self.label_encoders[col] = le
         
-        # Verificar que y es numérica (para regresión)
         if self.y.dtype == 'object' or pd.api.types.is_string_dtype(self.y):
             self.log_status("⚠️ Variable objetivo categórica detectada. Convertiendo a numérica...")
             le = LabelEncoder()
@@ -125,7 +121,6 @@ class LinearRegressionVisualizer:
         else:
             self.y = self.y.astype(float)
         
-        # Escalado de características (importante para SGD)
         self.X_scaled = self.scaler.fit_transform(self.X)
         self.log_status("📏 Escalado completado")
         
@@ -135,7 +130,6 @@ class LinearRegressionVisualizer:
             self.X_scaled, self.y, test_size=test_size, random_state=42
         )
         
-        # Convertir a arrays de numpy
         self.y_train = np.array(self.y_train)
         self.y_test = np.array(self.y_test)
         
@@ -145,7 +139,6 @@ class LinearRegressionVisualizer:
         """Entrena el modelo con SGD para visualización en tiempo real"""
         self.log_status("🚀 Iniciando entrenamiento con SGD...")
         
-        # Usar SGDRegressor para visualización paso a paso
         self.model = SGDRegressor(
             loss='squared_error',
             penalty='l2',
@@ -158,22 +151,18 @@ class LinearRegressionVisualizer:
             random_state=42
         )
         
-        # Métricas
-        train_losses = []  # MSE
+        train_losses = []
         test_losses = []
         train_r2s = []
         test_r2s = []
         coef_history = []
         
         for epoch in range(n_epochs):
-            # Entrenar un epoch
             self.model.partial_fit(self.X_train, self.y_train)
             
-            # Predicciones
             y_train_pred = self.model.predict(self.X_train)
             y_test_pred = self.model.predict(self.X_test)
             
-            # Calcular métricas
             train_mse = mean_squared_error(self.y_train, y_train_pred)
             test_mse = mean_squared_error(self.y_test, y_test_pred)
             train_r2 = r2_score(self.y_train, y_train_pred)
@@ -184,10 +173,8 @@ class LinearRegressionVisualizer:
             train_r2s.append(train_r2)
             test_r2s.append(test_r2)
             
-            # Guardar coeficientes
             coef_history.append(self.model.coef_.copy())
             
-            # Enviar a GUI para actualizar gráficas
             if self.plot_callback:
                 self.plot_callback(
                     epoch, n_epochs, 
@@ -201,13 +188,11 @@ class LinearRegressionVisualizer:
                     model=self.model
                 )
             
-            # Actualizar estado cada 10 epochs
             if (epoch + 1) % 10 == 0:
                 self.log_status(f"Epoch {epoch+1}/{n_epochs} - Test R²: {test_r2:.4f} | Test MSE: {test_mse:.4f}")
         
         self.log_status("✅ Entrenamiento completado!")
         
-        # Resultados finales
         y_test_pred = self.model.predict(self.X_test)
         
         return {

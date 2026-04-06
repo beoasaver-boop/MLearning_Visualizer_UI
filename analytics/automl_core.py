@@ -107,16 +107,14 @@ class AutoMLVisualizer:
                 self.X[col] = le.fit_transform(self.X[col].astype(str))
                 self.label_encoders[col] = le
         
-        # ==== SECCIÓN MODIFICADA: Procesar variable objetivo ====
+        # Procesar variable objetivo
         self.log_status("🎯 Procesando variable objetivo...")
         
-        # Convertir a numpy array si es necesario y codificar
         if isinstance(self.y, pd.Series):
             y_values = self.y.values
         else:
             y_values = self.y
         
-        # Verificar si es categórica (strings/objetos)
         if y_values.dtype == 'object' or pd.api.types.is_string_dtype(y_values):
             self.target_encoder = LabelEncoder()
             self.y = self.target_encoder.fit_transform(y_values)
@@ -124,17 +122,14 @@ class AutoMLVisualizer:
             self.is_multiclass = self.n_classes > 2
             self.log_status(f"✅ Target codificado: {self.n_classes} clases - {list(self.target_encoder.classes_)}")
         else:
-            # Si es numérica, asegurar que es entero para clasificación
             self.y = y_values.astype(int)
             self.n_classes = len(np.unique(self.y))
             self.is_multiclass = self.n_classes > 2
             self.log_status(f"✅ Target numérico: {self.n_classes} clases únicas")
         
-        # Verificar que los valores son 0,1,2,... (para clasificación)
         unique_values = np.unique(self.y)
         self.log_status(f"   Valores únicos en target: {unique_values}")
         
-        # Escalado de características
         self.X_scaled = self.scaler.fit_transform(self.X)
         self.log_status("📏 Escalado completado")
         
@@ -150,10 +145,9 @@ class AutoMLVisualizer:
     def train_and_visualize(self, n_epochs=100):
         """Entrena el modelo y envía visualizaciones a la GUI"""
         self.log_status("🚀 Iniciando entrenamiento...")
-        # Asegurar que y_train y y_test son arrays de numpy
         y_train_array = self.y_train if isinstance(self.y_train, np.ndarray) else np.array(self.y_train)
         y_test_array = self.y_test if isinstance(self.y_test, np.ndarray) else np.array(self.y_test)
-        # Configurar modelo
+        
         self.model = SGDClassifier(
             loss='log_loss',
             penalty='l2',
@@ -164,15 +158,15 @@ class AutoMLVisualizer:
             warm_start=True,
             random_state=42
         )
-        # Métricas
+        
         train_losses = []
         test_losses = []
         train_accuracies = []
         test_accuracies = []
+        
         for epoch in range(n_epochs):
-            # Entrenar
             self.model.partial_fit(self.X_train, y_train_array, classes=np.unique(self.y))
-            # Calcular métricas
+            
             train_probs = self.model.predict_proba(self.X_train)
             test_probs = self.model.predict_proba(self.X_test)
             
@@ -180,7 +174,6 @@ class AutoMLVisualizer:
                 train_loss = -np.mean([np.log(train_probs[i, y_train_array[i]] + 1e-10) for i in range(len(y_train_array))])
                 test_loss = -np.mean([np.log(test_probs[i, y_test_array[i]] + 1e-10) for i in range(len(y_test_array))])
             else:
-                # Para binario, asegurar que y es entero
                 train_loss = -np.mean(y_train_array * np.log(train_probs[:, 1] + 1e-10) + 
                                     (1 - y_train_array) * np.log(1 - train_probs[:, 1] + 1e-10))
                 test_loss = -np.mean(y_test_array * np.log(test_probs[:, 1] + 1e-10) + 
@@ -194,12 +187,10 @@ class AutoMLVisualizer:
             train_accuracies.append(train_acc)
             test_accuracies.append(test_acc)
             
-            # Enviar a GUI
             if self.plot_callback:
                 self.plot_callback(epoch, n_epochs, train_losses, test_losses, 
                                 train_accuracies, test_accuracies)
             
-            # Actualizar estado cada 10 epochs
             if (epoch + 1) % 10 == 0:
                 self.log_status(f"Epoch {epoch+1}/{n_epochs} - Test Acc: {test_acc:.4f}")
         
