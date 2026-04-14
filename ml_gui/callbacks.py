@@ -1,158 +1,147 @@
-"""
-Manejadores de eventos y callbacks de la interfaz gráfica
-"""
-import tkinter as tk
-from tkinter import filedialog, messagebox
+﻿import tkinter as tk
+from tkinter import messagebox, filedialog
 import threading
-from utils import helpers
+import numpy as np
+from sklearn.metrics import accuracy_score
 
+from analytics import AutoMLVisualizer, LinearRegressionVisualizer, RandomForestVisualizer
+from utils.helpers import validate_parameters
 
 class DataLoadingCallbacks:
-    """Callbacks para carga de datos"""
-    
     def __init__(self, app):
         self.app = app
     
     def load_file(self):
-        """Cargar archivo Excel/CSV"""
         file_path = filedialog.askopenfilename(
             title="Seleccionar archivo",
             filetypes=[("Excel files", "*.xlsx *.xls"), ("CSV files", "*.csv"), ("All files", "*.*")]
         )
+        if not file_path:
+            return
         
-        if file_path:
-            self.app.file_path = file_path
-            self.app.left_panel_widgets['file_label'].config(text=f"✅ {file_path.split('/')[-1]}")
-            self.app.update_status(f"📁 Archivo cargado: {file_path}")
-            
-            # Crear instancia según tipo de modelo
-            if self.app.model_type == 'logistic':
-                from analytics import AutoMLVisualizer
-                self.app.automl = AutoMLVisualizer(
-                    status_callback=self.app.update_status,
-                    plot_callback=self.app.update_training_plots
-                )
-            else:
-                from analytics import LinearRegressionVisualizer
-                self.app.automl = LinearRegressionVisualizer(
-                    status_callback=self.app.update_status,
-                    plot_callback=self.app.update_training_plots
-                )
-            
-            try:
-                self.app.automl.load_data(file_path)
-                self.app.update_status(f"✅ Columnas disponibles: {self.app.automl.get_columns()}")
-                
-                # Poblar checkbuttons
-                self.app.populate_feature_checkbuttons()
-                self.app.left_panel_widgets['confirm_vars_btn'].config(state=tk.NORMAL)
-                
-            except Exception as e:
-                self.app.update_status(f"❌ Error al cargar: {str(e)}")
-                messagebox.showerror("Error", f"No se pudo cargar el archivo:\n{str(e)}")
-
+        self.app.file_path = file_path
+        self.app.file_label.config(text=f"✅ {file_path.split('/')[-1]}")
+        self.app.update_status(f"📁 Archivo cargado: {file_path}")
+        
+        # Crear instancia del modelo según tipo
+        model_type = self.app.model_type
+        if model_type == 'logistic':
+            self.app.automl = AutoMLVisualizer(
+                status_callback=self.app.update_status,
+                plot_callback=self.app.update_training_plots
+            )
+        elif model_type in ['simple', 'multiple']:
+            self.app.automl = LinearRegressionVisualizer(
+                status_callback=self.app.update_status,
+                plot_callback=self.app.update_training_plots
+            )
+        elif model_type == 'random_forest':
+            self.app.automl = RandomForestVisualizer(
+                status_callback=self.app.update_status,
+                plot_callback=self.app.update_training_plots
+            )
+        else:
+            messagebox.showerror("Error", f"Tipo de modelo no reconocido: {model_type}")
+            return
+        
+        try:
+            self.app.automl.load_data(file_path)
+            self.app.update_status(f"✅ Columnas disponibles: {self.app.automl.get_columns()}")
+            self.app.populate_feature_checkbuttons()
+            self.app.confirm_vars_btn.config(state=tk.NORMAL)
+        except Exception as e:
+            self.app.update_status(f"❌ Error al cargar: {str(e)}")
+            messagebox.showerror("Error", f"No se pudo cargar el archivo:\n{str(e)}")
 
 class VariableSelectionCallbacks:
-    """Callbacks para selección de variables"""
-    
     def __init__(self, app):
         self.app = app
     
+    def confirm_variables(self):
+        # Obtener selección del listbox
+        selected_indices = self.app.features_listbox.curselection()
+        features = [self.app.features_listbox.get(i) for i in selected_indices]
+        target = self.app.target_var.get().strip()
+        
+        # Validaciones según tipo de modelo
+        if self.app.model_type == 'simple':
+            if len(features) != 1:
+                messagebox.showwarning("Advertencia", "Regresión Lineal Simple requiere EXACTAMENTE 1 variable independiente")
+                return
+        else:
+            if len(features) == 0:
+                messagebox.showwarning("Advertencia", "Seleccione al menos una variable independiente")
+                return
+        
+        if not target:
+            messagebox.showwarning("Advertencia", "Ingrese la variable dependiente")
+            return
+        
+        available_cols = self.app.automl.get_columns()
+        if target not in available_cols:
+            messagebox.showerror("Error", f"Variable objetivo '{target}' no encontrada")
+            return
+        
+        if target in features:
+            messagebox.showerror("Error", "La variable objetivo no puede ser también independiente")
+            return
+        
+        self.app.automl.set_variables(features, target)
+        model_desc = self.app.get_model_name()
+        self.app.update_status(f"✅ {model_desc} configurada: Features={features}, Target={target}")
+        self.app.train_btn.config(state=tk.NORMAL)
+    
     def select_all(self):
-        """Seleccionar todas las variables"""
-        features_vars = self.app.left_panel_widgets['features_vars']
-        for var in features_vars.values():
-            var.set(True)
+        if self.app.features_listbox:
+            self.app.features_listbox.selection_set(0, tk.END)
     
     def deselect_all(self):
-        """Deseleccionar todas las variables"""
-        features_vars = self.app.left_panel_widgets['features_vars']
-        for var in features_vars.values():
-            var.set(False)
-    
-    def confirm_variables(self):
-        """Confirmar variables seleccionadas"""
-        features_vars = self.app.left_panel_widgets['features_vars']
-        target_var = self.app.left_panel_widgets['target_var']
-        
-        features = [col for col, var in features_vars.items() if var.get()]
-        target = target_var.get().strip()
-        
-        # Validaciones
-        if self.app.model_type == 'simple' and len(features) != 1:
-            messagebox.showwarning("Advertencia", 
-                                  "Regresión Lineal Simple requiere EXACTAMENTE 1 variable independiente")
-            return
-        
-        # Validar usando helpers
-        is_valid, error_msg = helpers.validate_variables(features, target, 
-                                                         self.app.automl.get_columns())
-        if not is_valid:
-            messagebox.showwarning("Advertencia", error_msg)
-            return
-        
-        # Establecer variables
-        self.app.automl.set_variables(features, target)
-        
-        model_names = {
-            'logistic': 'Regresión Logística',
-            'simple': 'Regresión Lineal Simple',
-            'multiple': 'Regresión Lineal Múltiple'
-        }
-        
-        self.app.update_status(f"✅ {model_names.get(self.app.model_type, 'Modelo')} configurada:")
-        self.app.update_status(f"   Features ({len(features)}): {features}")
-        self.app.update_status(f"   Target: {target}")
-        
-        # Habilitar entrenamiento
-        self.app.left_panel_widgets['train_btn'].config(state=tk.NORMAL)
-
+        if self.app.features_listbox:
+            self.app.features_listbox.selection_clear(0, tk.END)
 
 class TrainingCallbacks:
-    """Callbacks para entrenamiento del modelo"""
-    
     def __init__(self, app):
         self.app = app
     
     def start_training(self):
-        """Iniciar entrenamiento en hilo separado"""
         if self.app.is_training:
             return
         
-        # Obtener parámetros
-        test_size_str = self.app.left_panel_widgets['test_size_var'].get()
-        n_epochs_str = self.app.left_panel_widgets['epochs_var'].get()
-        nulls_str = self.app.left_panel_widgets['nulls_var'].get()
-        
-        is_valid, error_msg = helpers.validate_parameters(test_size_str, n_epochs_str, nulls_str)
-        if not is_valid:
-            messagebox.showerror("Error", error_msg)
+        try:
+            test_size = float(self.app.test_size_var.get())
+            n_epochs = int(self.app.epochs_var.get())
+            nulls_handling = self.app.nulls_var.get()
+            learning_rate = None
+            if hasattr(self.app, 'learning_rate_var') and self.app.model_type in ['simple', 'multiple']:
+                learning_rate = float(self.app.learning_rate_var.get())
+        except ValueError:
+            messagebox.showerror("Error", "Parámetros inválidos")
             return
         
-        # Deshabilitar botones
         self.app.is_training = True
-        self.app.left_panel_widgets['train_btn'].config(state=tk.DISABLED, text="⏳ ENTRENANDO...")
-        self.app.left_panel_widgets['confirm_vars_btn'].config(state=tk.DISABLED)
-        self.app.left_panel_widgets['load_btn'].config(state=tk.DISABLED)
+        self.app.train_btn.config(state=tk.DISABLED, text="⏳ ENTRENANDO...")
+        self.app.confirm_vars_btn.config(state=tk.DISABLED)
+        self.app.load_btn.config(state=tk.DISABLED)
         
-        # Iniciar hilo
         self.app.training_thread = threading.Thread(
             target=self._training_worker,
-            args=(float(test_size_str), int(n_epochs_str), nulls_str),
+            args=(test_size, n_epochs, nulls_handling, learning_rate),
             daemon=True
         )
         self.app.training_thread.start()
     
-    def _training_worker(self, test_size, n_epochs, nulls_handling):
-        """Worker para entrenamiento en hilo separado"""
+    def _training_worker(self, test_size, n_epochs, nulls_handling, learning_rate=None):
         try:
             self.app.automl.clean_data(handle_nulls=nulls_handling)
             self.app.automl.split_data(test_size=test_size)
-            results = self.app.automl.train_and_visualize(n_epochs=n_epochs)
             
-            # Mostrar resultados en el hilo principal
+            if self.app.model_type in ['simple', 'multiple'] and learning_rate:
+                # Para regresión lineal con SGD se puede pasar learning_rate, pero nuestro método no lo usa directamente
+                results = self.app.automl.train_and_visualize(n_epochs=n_epochs, learning_rate=learning_rate)
+            else:
+                results = self.app.automl.train_and_visualize(n_epochs=n_epochs)
+            
             self.app.root.after(0, self.app.show_final_results, results)
-            
         except Exception as e:
             self.app.update_status(f"❌ Error durante entrenamiento: {str(e)}")
             import traceback
@@ -162,8 +151,6 @@ class TrainingCallbacks:
             self.app.root.after(0, self._enable_buttons)
     
     def _enable_buttons(self):
-        """Rehabilitar botones después del entrenamiento"""
-        self.app.left_panel_widgets['train_btn'].config(state=tk.NORMAL, 
-                                                        text="🚀 INICIAR ENTRENAMIENTO")
-        self.app.left_panel_widgets['confirm_vars_btn'].config(state=tk.NORMAL)
-        self.app.left_panel_widgets['load_btn'].config(state=tk.NORMAL)
+        self.app.train_btn.config(state=tk.NORMAL, text="🚀 INICIAR ENTRENAMIENTO")
+        self.app.confirm_vars_btn.config(state=tk.NORMAL)
+        self.app.load_btn.config(state=tk.NORMAL)
