@@ -2,14 +2,14 @@
 
 Aplicación de escritorio en **Python** para **machine learning** (clasificación y regresión) con aprendizaje incremental y **visualización en tiempo real**. Permite cargar tablas (Excel o CSV), elegir variables predictoras y objetivo, y entrenar un modelo mientras se observan métricas en vivo mediante 6 gráficas que se actualizan por épocas.
 
-## ✨ Características principales
+## Características principales
 
-- 🎯 **Tres tipos de modelos**:
+- **Tres tipos de modelos**:
   - Regresión Logística (clasificación binaria/multiclase)
   - Regresión Lineal Simple (1 variable independiente)
   - Regresión Lineal Múltiple (múltiples variables independientes)
 
-- 📊 **6 gráficas en tiempo real**:
+- **6 gráficas en tiempo real**:
   - Pérdida (Loss)
   - Precisión/R² Score
   - Evolución de coeficientes
@@ -18,7 +18,7 @@ Aplicación de escritorio en **Python** para **machine learning** (clasificació
   - Sobreajuste (overfitting)
 
 
-## 📁 Estructura del proyecto (NUEVA)
+## Estructura del proyecto (NUEVA)
 
 ```
 MLearning_Visualizer_UI/
@@ -111,5 +111,5 @@ Opcionalmente, coloca un archivo **`icon.ico`** junto a `main.py` para el icono 
 
 
 > [!TIP]
-> **LICENSE:** This project contains code under multiple third-part licenses: [Numpy: https://numpy.org], [Pandas: https://pandas.pydata.org/], [tkinter: https://docs.python.org/es/3/library/tkinter.html], [Matplotlib: https://matplotlib.org/], [sklearn: https://scikit-learn.org/stable/index.html]. The current codebase includes components licensed under the Open WebUI License with an additional requirement to preserve the "MLearning_Visualizer_UI" branding, as well as prior contributions under their respective original licenses. For a detailed record of license changes and the applicable terms for each section of the code, please refer to LICENSE in source code. 
+> **LICENSE:** This project contains code under multiple third-part licenses: [Numpy: https://numpy.org], [Pandas: https://pandas.pydata.org/], [tkinter: https://docs.python.org/es/3/library/tkinter.html], [Matplotlib: https://matplotlib.org/], [sklearn: https://scikit-learn.org/stable/index.html]. The current codebase includes components licensed under the MLreaningVisualizer License with an additional requirement to preserve the "MLearning_Visualizer_UI" branding, as well as prior contributions under their respective original licenses. For a detailed record of license changes and the applicable terms for each section of the code, please refer to LICENSE in source code. 
 
