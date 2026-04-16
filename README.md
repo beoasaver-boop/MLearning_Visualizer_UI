@@ -144,18 +144,12 @@ El pipeline automatizado incluye los siguientes pasos para cada modelo:
 | ├── [`helpers.py`](utils/helpers.py) | Funciones auxiliares y validaciones. |
 | [`requirements.txt`](requirements.txt) | Dependencias Python. |
 
-## Detalles del modelo y del pipeline
-
-- **Algoritmo**: `sklearn.linear_model.SGDClassifier` con `loss='log_loss'` (equivalente práctico a regresión logística con descenso por gradiente estocástico), `warm_start=True` y `max_iter=1` por epoch para simular entrenamiento por épocas.
-- **Preprocesado**: `LabelEncoder` en categóricas y en el target si es texto; `StandardScaler` sobre las features; partición estratificada con `train_test_split`.
-- **Clases**: Soporta **binaria** y **multicategoría**; las métricas de pérdida se adaptan según el número de clases.
 
 ## Limitaciones y notas
 
 - Es una herramienta orientada a **exploración y docencia**; no sustituye a pipelines de producción sin validación adicional (hiperparámetros, validación cruzada, etc.).
-- `joblib` está incluido en dependencias e importado en el núcleo, pero **no hay guardado de modelo en disco** implementado en el código actual; se puede añadir serialización con `joblib.dump` si lo necesitas.
 
 
 > [!TIP]
-> **LICENSE:** This project contains code under multiple third-part licenses: [Numpy: https://numpy.org], [Pandas: https://pandas.pydata.org/], [tkinter: https://docs.python.org/es/3/library/tkinter.html], [Matplotlib: https://matplotlib.org/], [sklearn: https://scikit-learn.org/stable/index.html]. The current codebase includes components licensed under the MLreaningVisualizer License with an additional requirement to preserve the "MLearning_Visualizer_UI" branding, as well as prior contributions under their respective original licenses. For a detailed record of license changes and the applicable terms for each section of the code, please refer to LICENSE in source code. 
+> **LICENSE:** This project contains code under multiple third-part licenses: [Numpy: https://numpy.org], [Pandas: https://pandas.pydata.org/], [tkinter: https://docs.python.org/es/3/library/tkinter.html], [Matplotlib: https://matplotlib.org/], [sklearn: https://scikit-learn.org/stable/index.html], [joblib: https://joblib.readthedocs.io/en/stable/]. The current codebase includes components licensed under the MLreaningVisualizer License with an additional requirement to preserve the "MLearning_Visualizer_UI" branding, as well as prior contributions under their respective original licenses. For a detailed record of license changes and the applicable terms for each section of the code, please refer to LICENSE in source code. 
 
