@@ -79,10 +79,10 @@ python main.py
 > [!TIP]
 > 1. **Cargar datos** — Excel (`.xlsx`, `.xls`) o CSV (`.csv`).
 > 2. **Seleccionar variables** — En el cuadro de texto, indica las **features** separadas por comas (nombres exactos de columnas) y la **variable objetivo** en el campo correspondiente. Pulsa **Confirmar > variables**.
->3. **Parámetros** — Ajusta:
-   - **Tamaño de prueba** — Proporción del conjunto de test (por defecto `0.3`).
-   - **Número de epochs** — Pasadas de entrenamiento incremental (por defecto `100`).
-   - **Manejo de nulos** — `1` eliminar filas con nulos; `2` imputar mediana (numéricas) / moda (categóricas); `3` rellenar con `0`.
+> 3. **Parámetros** — Ajusta:
+>   - **Tamaño de prueba** — Proporción del conjunto de test (por defecto `0.3`).>
+>   - **Número de epochs** — Pasadas de entrenamiento incremental (por defecto `100`).
+>   - **Manejo de nulos** — `1` eliminar filas con nulos; `2` imputar mediana (numéricas) / moda (categóricas); `3` rellenar con `0`.
 > 4. **Iniciar entrenamiento** — El proceso corre en un **hilo en segundo plano** para no bloquear la ventana.
 
 ### Pestañas
