@@ -110,6 +110,6 @@ Opcionalmente, coloca un archivo **`icon.ico`** junto a `main.py` para el icono 
 - `joblib` está incluido en dependencias e importado en el núcleo, pero **no hay guardado de modelo en disco** implementado en el código actual; se puede añadir serialización con `joblib.dump` si lo necesitas.
 
 
-[!TIP]
-LICENSE
-This project contains code under multiple licenses. The current codebase includes components licensed under the Open WebUI License with an additional requirement to preserve the "MLearning_Visualizer_UI" branding, as well as prior contributions under their respective original licenses. For a detailed record of license changes and the applicable terms for each section of the code, please refer to LICENSE
+> [!TIP]
+> **LICENSE:** This project contains code under multiple third-part licenses: [Numpy: https://numpy.org], [Pandas: https://pandas.pydata.org/], [tkinter: https://docs.python.org/es/3/library/tkinter.html]. The current codebase includes components licensed under the Open WebUI License with an additional requirement to preserve the "MLearning_Visualizer_UI" branding, as well as prior contributions under their respective original licenses. For a detailed record of license changes and the applicable terms for each section of the code, please refer to LICENSE in source code. 
+
