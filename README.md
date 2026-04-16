@@ -151,6 +151,6 @@ El pipeline automatizado incluye los siguientes pasos para cada modelo:
 
 
 > [!TIP]
-> **LICENSE:** This project contains code under multiple third-part licenses: [Numpy: https://numpy.org], [Pandas: https://pandas.pydata.org/], [tkinter: https://docs.python.org/es/3/library/tkinter.html], [Matplotlib: https://matplotlib.org/], [sklearn: https://scikit-learn.org/stable/index.html], [joblib: https://joblib.readthedocs.io/en/stable/], [openpyxl: https://openpyxl.readthedocs.io/en/stable/], specially thanks to all those libraries and their incredible job to the community. 
+> **LICENSE:** This project contains code under multiple third-part licenses: [Numpy: https://numpy.org], [Pandas: https://pandas.pydata.org/], [tkinter: https://docs.python.org/es/3/library/tkinter.html], [Matplotlib: https://matplotlib.org/], [sklearn: https://scikit-learn.org/stable/index.html], [joblib: https://joblib.readthedocs.io/en/stable/], [openpyxl: https://openpyxl.readthedocs.io/en/stable/], specially thanks to all those libraries and their incredible contributions to the community. 
 > The current codebase includes components licensed under the MLreaningVisualizer License with an additional requirement to preserve the "MLearning_Visualizer_UI" branding, as well as prior contributions under their respective original licenses. For a detailed record of license changes and the applicable terms for each section of the code, please refer to LICENSE in source code. 
 
