@@ -4,10 +4,11 @@ Aplicación de escritorio en **Python** para **machine learning** (clasificació
 
 ## Características principales
 
-- **Tres tipos de modelos**:
+- **Cuatro tipos de modelos**:
   - Regresión Logística (clasificación binaria/multiclase)
   - Regresión Lineal Simple (1 variable independiente)
   - Regresión Lineal Múltiple (múltiples variables independientes)
+  - Random Forest (clasificación)
 
 - **6 gráficas en tiempo real**:
   - Pérdida (Loss)
@@ -74,16 +75,44 @@ python main.py
 ```
 
 
-### Flujo en la interfaz
+### Pipeline de Procesamiento
+
+El pipeline automatizado incluye los siguientes pasos para cada modelo:
+
+1. **Carga y Validación de Datos**: Soporta archivos Excel (.xlsx, .xls) y CSV. Valida formato y estructura básica.
+
+2. **Limpieza de Datos**: 
+   - Eliminación de filas con valores nulos (opción 1)
+   - Imputación con mediana/moda (opción 2)
+   - Relleno con cero (opción 3)
+
+3. **Codificación de Variables Categóricas**: Transforma variables no numéricas usando Label Encoding.
+
+4. **Estandarización**: Escala las características numéricas usando StandardScaler.
+
+5. **División Train/Test**: Separa los datos según el porcentaje especificado (default 30% test).
+
+6. **Entrenamiento Incremental**: 
+   - Regresión Logística: SGDClassifier con pérdida log
+   - Regresión Lineal: SGDRegressor para simple/múltiple
+   - Random Forest: RandomForestClassifier con crecimiento incremental de árboles
+
+7. **Visualización en Tiempo Real**: Actualiza 6 gráficas por época durante el entrenamiento.
+
+8. **Evaluación Final**: Calcula métricas finales y genera reportes detallados.
+
+### Flujo en la Interfaz
 
 > [!TIP]
-> 1. **Cargar datos** — Excel (`.xlsx`, `.xls`) o CSV (`.csv`).
-> 2. **Seleccionar variables** — En el cuadro de texto, indica las **features** separadas por comas (nombres exactos de columnas) y la **variable objetivo** en el campo correspondiente. Pulsa **Confirmar > variables**.
-> 3. **Parámetros** — Ajusta:
->   - **Tamaño de prueba** — Proporción del conjunto de test (por defecto `0.3`).>
+> 1. **Seleccionar Modelo**: Elige entre Regresión Logística, Lineal Simple, Lineal Múltiple o Random Forest desde el menú principal.
+> 2. **Cargar datos** — Excel (`.xlsx`, `.xls`) o CSV (`.csv`).
+> 3. **Seleccionar variables** — Elige las variables predictoras y objetivo de la lista disponible. Para regresión simple, selecciona exactamente 1 feature.
+> 4. **Parámetros** — Ajusta:
+>   - **Tamaño de prueba** — Proporción del conjunto de test (por defecto `0.3`).
 >   - **Número de epochs** — Pasadas de entrenamiento incremental (por defecto `100`).
 >   - **Manejo de nulos** — `1` eliminar filas con nulos; `2` imputar mediana (numéricas) / moda (categóricas); `3` rellenar con `0`.
-> 4. **Iniciar entrenamiento** — El proceso corre en un **hilo en segundo plano** para no bloquear la ventana.
+>   - **Learning Rate** (solo para regresión lineal) — Tasa de aprendizaje para SGD.
+> 5. **Iniciar entrenamiento** — El proceso corre en un **hilo en segundo plano** para no bloquear la ventana.
 
 ### Pestañas
 
@@ -94,10 +123,26 @@ python main.py
 
 | Archivo / módulo | Rol |
 |------------------|-----|
-| [`main.py`](main.py) | Punto de entrada: ventana Tk centrada (~1400×900), arranca `MLVisualizerApp`. |
-| [`ml_gui.py`](ml_gui.py) | Interfaz gráfica (`MLVisualizerApp`): carga de archivo, formularios, hilos de entrenamiento, integración con Matplotlib. |
-| [`automl_core.py`](automl_core.py) | Lógica ML (`AutoMLVisualizer`): carga, limpieza, codificación, escalado, división train/test, entrenamiento y métricas. |
-| [`styles.py`](styles.py) | Colores del tema oscuro para Tkinter y parámetros de estilo de Matplotlib. |
+| [`main.py`](main.py) | Punto de entrada: menú principal para seleccionar tipo de modelo. |
+| [`menu_principal.py`](menu_principal.py) | Interfaz de selección de modelo (Regresión Logística, Lineal, Random Forest). |
+| `ml_gui/` | Módulos de interfaz gráfica. |
+| ├── [`app.py`](ml_gui/app.py) | Clase principal de la aplicación GUI (`MLVisualizerApp`). |
+| ├── [`callbacks.py`](ml_gui/callbacks.py) | Callbacks para eventos de la interfaz (carga, selección, entrenamiento). |
+| ├── [`widgets.py`](ml_gui/widgets.py) | Definición de widgets y layouts. |
+| ├── [`plots.py`](ml_gui/plots.py) | Gestión de gráficas en tiempo real. |
+| ├── [`results.py`](ml_gui/results.py) | Visualización de resultados finales. |
+| ├── [`eda_viewer.py`](ml_gui/eda_viewer.py) | Exploración de datos. |
+| ├── [`rf_plots.py`](ml_gui/rf_plots.py) | Gráficas específicas para Random Forest. |
+| ├── [`tooltips.py`](ml_gui/tooltips.py) | Tooltips y ayuda. |
+| `analytics/` | Lógica de machine learning. |
+| ├── [`automl_core.py`](analytics/automl_core.py) | Regresión Logística (`AutoMLVisualizer`). |
+| ├── [`linear_regression_core.py`](analytics/linear_regression_core.py) | Regresión Lineal (`LinearRegressionVisualizer`). |
+| ├── [`random_forest_core.py`](analytics/random_forest_core.py) | Random Forest (`RandomForestVisualizer`). |
+| `config/` | Configuración. |
+| ├── [`theme.py`](config/theme.py) | Tema oscuro para Tkinter y estilos de Matplotlib. |
+| `utils/` | Utilidades. |
+| ├── [`helpers.py`](utils/helpers.py) | Funciones auxiliares y validaciones. |
+| [`requirements.txt`](requirements.txt) | Dependencias Python. |
 
 ## Detalles del modelo y del pipeline
 
