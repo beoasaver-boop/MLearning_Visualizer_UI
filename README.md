@@ -109,6 +109,7 @@ Opcionalmente, coloca un archivo **`icon.ico`** junto a `main.py` para el icono 
 - Es una herramienta orientada a **exploración y docencia**; no sustituye a pipelines de producción sin validación adicional (hiperparámetros, validación cruzada, etc.).
 - `joblib` está incluido en dependencias e importado en el núcleo, pero **no hay guardado de modelo en disco** implementado en el código actual; se puede añadir serialización con `joblib.dump` si lo necesitas.
 
-## Licencia
 
-No requiere de licenciamiento y es de código abierto para uso de todos.
+[!TIP]
+LICENSE
+This project contains code under multiple licenses. The current codebase includes components licensed under the Open WebUI License with an additional requirement to preserve the "MLearning_Visualizer_UI" branding, as well as prior contributions under their respective original licenses. For a detailed record of license changes and the applicable terms for each section of the code, please refer to LICENSE
