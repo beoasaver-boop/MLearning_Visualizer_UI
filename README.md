@@ -31,11 +31,12 @@ MLearning_Visualizer_UI/
 └── requirements.txt
 ```
 
-## Requisitos
+[!IMPORTANT]
+> ## Requisitos
 
-- **Python 3.8+** (recomendado 3.10 o superior).
-- **Tkinter**: en Windows suele venir con la instalación oficial de Python. En Linux puede requerirse el paquete del sistema (`python3-tk`). La línea `tkinter>=3.0.0` en `requirements.txt` no siempre se instala vía `pip`; si falla, omítela e instala Tk desde el sistema.
-- Dependencias Python: ver [`requirements.txt`](requirements.txt) (`pandas`, `numpy`, `scikit-learn`, `matplotlib`, `openpyxl`, `joblib`, `tkinter`).
+>- **Python 3.8+** (recomendado 3.10 o superior).
+>- **Tkinter**: en Windows suele venir con la instalación oficial de Python. En Linux puede requerirse >el paquete del sistema (`python3-tk`). La línea `tkinter>=3.0.0` en `requirements.txt` no siempre se >instala vía `pip`; si falla, omítela e instala Tk desde el sistema.
+>- Dependencias Python: ver [`requirements.txt`](requirements.txt) (`pandas`, `numpy`, `scikit-learn`, >`matplotlib`, `openpyxl`, `joblib`, `tkinter`).
 
 ## Instalación en Windows
 
