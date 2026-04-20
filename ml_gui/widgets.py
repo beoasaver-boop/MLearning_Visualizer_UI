@@ -63,31 +63,70 @@ class LeftPanelBuilder:
                                    bg=DARK_THEME['frame_bg'], fg=DARK_THEME['fg'],
                                    font=('Arial', 11, 'bold'))
         vars_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        tk.Label(vars_frame, text="Variables Independientes (Features):",
+        
+        # Etiqueta de instrucciones según el modelo
+        if self.app.model_type == 'simple':
+            instruccion = "Variables Independientes (seleccione SOLO UNA):"
+        else:
+            instruccion = "Variables Independientes (seleccione múltiples con Ctrl+Click):"
+        
+        tk.Label(vars_frame, text=instruccion,
                  bg=DARK_THEME['frame_bg'], fg=DARK_THEME['fg']).pack(anchor=tk.W, padx=10, pady=(10,0))
+        
+        # Frame para listbox con scroll
         listbox_frame = tk.Frame(vars_frame, bg=DARK_THEME['frame_bg'])
         listbox_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
         scrollbar = tk.Scrollbar(listbox_frame)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.features_listbox = tk.Listbox(listbox_frame, selectmode=tk.MULTIPLE,
-                                           yscrollcommand=scrollbar.set,
-                                           bg=DARK_THEME['entry_bg'], fg=DARK_THEME['fg'],
-                                           selectbackground=DARK_THEME['highlight'],
-                                           selectforeground='white', height=8)
+        
+        # Listbox con selección múltiple (para todos, luego validamos)
+        self.features_listbox = tk.Listbox(
+            listbox_frame,
+            selectmode=tk.MULTIPLE,
+            yscrollcommand=scrollbar.set,
+            bg=DARK_THEME['entry_bg'],
+            fg=DARK_THEME['fg'],
+            selectbackground=DARK_THEME['highlight'],
+            selectforeground='white',
+            height=8,
+            font=('Arial', 9)
+        )
         self.features_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.config(command=self.features_listbox.yview)
+        
+        # Botones de selección
         btn_frame = tk.Frame(vars_frame, bg=DARK_THEME['frame_bg'])
         btn_frame.pack(pady=5)
-        tk.Button(btn_frame, text="✓ Seleccionar Todas", command=self.app.select_all,
-                  bg=DARK_THEME['button_bg'], fg=DARK_THEME['button_fg']).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="✗ Deseleccionar Todas", command=self.app.deselect_all,
-                  bg=DARK_THEME['button_bg'], fg=DARK_THEME['button_fg']).pack(side=tk.LEFT, padx=5)
+        
+        def select_all():
+            self.features_listbox.selection_set(0, tk.END)
+            # Para regresión simple, corregir después
+            if self.app.model_type == 'simple' and self.features_listbox.size() > 0:
+                # Dejar solo el primer elemento seleccionado
+                self.features_listbox.selection_clear(1, tk.END)
+        
+        def deselect_all():
+            self.features_listbox.selection_clear(0, tk.END)
+        
+        tk.Button(btn_frame, text="✓ Seleccionar Todas", command=select_all,
+                  bg=DARK_THEME['button_bg'], fg=DARK_THEME['button_fg'],
+                  font=('Arial', 8), cursor='hand2').pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="✗ Deseleccionar Todas", command=deselect_all,
+                  bg=DARK_THEME['button_bg'], fg=DARK_THEME['button_fg'],
+                  font=('Arial', 8), cursor='hand2').pack(side=tk.LEFT, padx=5)
+        
+        # Variable dependiente
         tk.Label(vars_frame, text="Variable Dependiente (Target):",
                  bg=DARK_THEME['frame_bg'], fg=DARK_THEME['fg']).pack(anchor=tk.W, padx=10, pady=(10,0))
+        
         self.target_var = tk.StringVar()
         self.target_entry = tk.Entry(vars_frame, textvariable=self.target_var, width=35,
-                                     bg=DARK_THEME['entry_bg'], fg=DARK_THEME['entry_fg'])
+                                     bg=DARK_THEME['entry_bg'], fg=DARK_THEME['entry_fg'],
+                                     insertbackground=DARK_THEME['fg'])
         self.target_entry.pack(padx=10, pady=5)
+        
+        # Botón confirmar
         self.confirm_vars_btn = tk.Button(vars_frame, text="✓ Confirmar Variables",
                                           command=self.app.confirm_variables,
                                           bg=DARK_THEME['success'], fg='white',
@@ -100,22 +139,26 @@ class LeftPanelBuilder:
                                      bg=DARK_THEME['frame_bg'], fg=DARK_THEME['fg'],
                                      font=('Arial', 11, 'bold'))
         params_frame.pack(fill=tk.X, padx=10, pady=10)
+        
         tk.Label(params_frame, text="Tamaño de Prueba (0-1):",
                  bg=DARK_THEME['frame_bg'], fg=DARK_THEME['fg']).pack(anchor=tk.W, padx=10, pady=(10,0))
         self.test_size_var = tk.StringVar(value="0.3")
         tk.Entry(params_frame, textvariable=self.test_size_var, width=10,
                  bg=DARK_THEME['entry_bg'], fg=DARK_THEME['entry_fg']).pack(anchor=tk.W, padx=10, pady=5)
+        
         tk.Label(params_frame, text="Número de Epochs:",
                  bg=DARK_THEME['frame_bg'], fg=DARK_THEME['fg']).pack(anchor=tk.W, padx=10, pady=(10,0))
         self.epochs_var = tk.StringVar(value="100")
         tk.Entry(params_frame, textvariable=self.epochs_var, width=10,
                  bg=DARK_THEME['entry_bg'], fg=DARK_THEME['entry_fg']).pack(anchor=tk.W, padx=10, pady=5)
+        
         if self.app.model_type in ['simple', 'multiple']:
             tk.Label(params_frame, text="Tasa de Aprendizaje (0.001-0.1):",
                      bg=DARK_THEME['frame_bg'], fg=DARK_THEME['fg']).pack(anchor=tk.W, padx=10, pady=(10,0))
             self.learning_rate_var = tk.StringVar(value="0.01")
             tk.Entry(params_frame, textvariable=self.learning_rate_var, width=10,
                      bg=DARK_THEME['entry_bg'], fg=DARK_THEME['entry_fg']).pack(anchor=tk.W, padx=10, pady=5)
+        
         tk.Label(params_frame, text="Manejo de Nulos:\n1=Eliminar, 2=Mediana/Moda, 3=0",
                  bg=DARK_THEME['frame_bg'], fg=DARK_THEME['fg']).pack(anchor=tk.W, padx=10, pady=(10,0))
         self.nulls_var = tk.StringVar(value="2")
@@ -149,29 +192,23 @@ class RightPanelBuilder:
         self.results_display = None
         self.plots_manager = None
         self.plots_frame = None
-        self.notebook = None  # Para referencia
     
     def build(self):
         right_panel = ttk.Frame(self.app.root, style='Dark.TFrame')
         right_panel.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-        self.notebook = ttk.Notebook(right_panel)
-        self.notebook.pack(fill=tk.BOTH, expand=True)
+        notebook = ttk.Notebook(right_panel)
+        notebook.pack(fill=tk.BOTH, expand=True)
         
         # Pestaña entrenamiento
-        training_frame = ttk.Frame(self.notebook, style='Dark.TFrame')
-        self.notebook.add(training_frame, text="📈 Entrenamiento en Vivo")
+        training_frame = ttk.Frame(notebook, style='Dark.TFrame')
+        notebook.add(training_frame, text="📈 Entrenamiento en Vivo")
         self.plots_frame = tk.Frame(training_frame, bg=DARK_THEME['bg'])
         self.plots_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Solo crear el manager genérico si NO es Random Forest
-        if self.app.model_type != 'random_forest':
-            self.plots_manager = TrainingPlotsManager(self.plots_frame)
-        else:
-            self.plots_manager = None  # Se usará rf_plots en app.py
+        self.plots_manager = TrainingPlotsManager(self.plots_frame)
         
         # Pestaña resultados
-        results_frame = ttk.Frame(self.notebook, style='Dark.TFrame')
-        self.notebook.add(results_frame, text="📊 Resultados Finales")
+        results_frame = ttk.Frame(notebook, style='Dark.TFrame')
+        notebook.add(results_frame, text="📊 Resultados Finales")
         self.results_display = tk.Frame(results_frame, bg=DARK_THEME['bg'])
         self.results_display.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
