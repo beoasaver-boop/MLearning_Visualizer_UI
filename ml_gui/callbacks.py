@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 
 from analytics import AutoMLVisualizer, LinearRegressionVisualizer, RandomForestVisualizer
-from utils.helpers import validate_parameters
+from ml_gui.eda_viewer import EDAViewer
 
 class DataLoadingCallbacks:
     def __init__(self, app):
@@ -23,7 +23,7 @@ class DataLoadingCallbacks:
         self.app.file_label.config(text=f"✅ {file_path.split('/')[-1]}")
         self.app.update_status(f"📁 Archivo cargado: {file_path}")
         
-        # Crear instancia del modelo según tipo
+        # Crear instancia según tipo de modelo
         model_type = self.app.model_type
         if model_type == 'logistic':
             self.app.automl = AutoMLVisualizer(
@@ -46,12 +46,24 @@ class DataLoadingCallbacks:
         
         try:
             self.app.automl.load_data(file_path)
+            df = self.app.automl.df
             self.app.update_status(f"✅ Columnas disponibles: {self.app.automl.get_columns()}")
+            
+            # Mostrar ventana de análisis exploratorio (EDA)
+            self._show_eda(df, file_path.split('/')[-1])
+            
             self.app.populate_feature_checkbuttons()
             self.app.confirm_vars_btn.config(state=tk.NORMAL)
         except Exception as e:
             self.app.update_status(f"❌ Error al cargar: {str(e)}")
             messagebox.showerror("Error", f"No se pudo cargar el archivo:\n{str(e)}")
+    
+    def _show_eda(self, df, filename):
+        """Muestra ventana de análisis exploratorio de datos"""
+        try:
+            EDAViewer(self.app.root, df, filename)
+        except Exception as e:
+            self.app.update_status(f"⚠️ No se pudo mostrar EDA: {str(e)}")
 
 class VariableSelectionCallbacks:
     def __init__(self, app):
@@ -66,34 +78,51 @@ class VariableSelectionCallbacks:
         # Validaciones según tipo de modelo
         if self.app.model_type == 'simple':
             if len(features) != 1:
-                messagebox.showwarning("Advertencia", "Regresión Lineal Simple requiere EXACTAMENTE 1 variable independiente")
+                messagebox.showwarning(
+                    "Advertencia", 
+                    "Regresión Lineal Simple requiere EXACTAMENTE 1 variable independiente.\n"
+                    "Use Ctrl+Click para seleccionar/deseleccionar."
+                )
                 return
         else:
             if len(features) == 0:
-                messagebox.showwarning("Advertencia", "Seleccione al menos una variable independiente")
+                messagebox.showwarning(
+                    "Advertencia", 
+                    "Por favor seleccione al menos una variable independiente.\n"
+                    "Use Ctrl+Click para seleccionar múltiples."
+                )
                 return
         
         if not target:
-            messagebox.showwarning("Advertencia", "Ingrese la variable dependiente")
+            messagebox.showwarning("Advertencia", "Por favor ingrese la variable dependiente")
             return
         
         available_cols = self.app.automl.get_columns()
         if target not in available_cols:
-            messagebox.showerror("Error", f"Variable objetivo '{target}' no encontrada")
+            messagebox.showerror("Error", f"Variable objetivo '{target}' no encontrada\n"
+                                          f"Columnas disponibles: {available_cols}")
             return
         
         if target in features:
-            messagebox.showerror("Error", "La variable objetivo no puede ser también independiente")
+            messagebox.showerror("Error", "La variable objetivo no puede ser también una variable independiente")
             return
         
+        # Establecer variables
         self.app.automl.set_variables(features, target)
+        
         model_desc = self.app.get_model_name()
-        self.app.update_status(f"✅ {model_desc} configurada: Features={features}, Target={target}")
+        self.app.update_status(f"✅ {model_desc} configurada:")
+        self.app.update_status(f"   Features ({len(features)}): {features}")
+        self.app.update_status(f"   Target: {target}")
+        
+        # Habilitar botón de entrenamiento
         self.app.train_btn.config(state=tk.NORMAL)
     
     def select_all(self):
         if self.app.features_listbox:
             self.app.features_listbox.selection_set(0, tk.END)
+            if self.app.model_type == 'simple' and self.app.features_listbox.size() > 0:
+                self.app.features_listbox.selection_clear(1, tk.END)
     
     def deselect_all(self):
         if self.app.features_listbox:
@@ -112,7 +141,7 @@ class TrainingCallbacks:
             n_epochs = int(self.app.epochs_var.get())
             nulls_handling = self.app.nulls_var.get()
             learning_rate = None
-            if hasattr(self.app, 'learning_rate_var') and self.app.model_type in ['simple', 'multiple']:
+            if hasattr(self.app, 'learning_rate_var') and self.app.learning_rate_var and self.app.model_type in ['simple', 'multiple']:
                 learning_rate = float(self.app.learning_rate_var.get())
         except ValueError:
             messagebox.showerror("Error", "Parámetros inválidos")
@@ -136,7 +165,6 @@ class TrainingCallbacks:
             self.app.automl.split_data(test_size=test_size)
             
             if self.app.model_type in ['simple', 'multiple'] and learning_rate:
-                # Para regresión lineal con SGD se puede pasar learning_rate, pero nuestro método no lo usa directamente
                 results = self.app.automl.train_and_visualize(n_epochs=n_epochs, learning_rate=learning_rate)
             else:
                 results = self.app.automl.train_and_visualize(n_epochs=n_epochs)

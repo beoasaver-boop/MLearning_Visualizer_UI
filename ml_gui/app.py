@@ -14,6 +14,7 @@ from ml_gui.callbacks import DataLoadingCallbacks, VariableSelectionCallbacks, T
 from ml_gui.plots import TrainingPlotsManager
 from ml_gui.rf_plots import RandomForestPlotsManager
 from ml_gui.results import ResultsDisplayer
+from ml_gui.tooltips import add_tooltips_to_widgets
 
 from analytics import AutoMLVisualizer, LinearRegressionVisualizer, RandomForestVisualizer
 
@@ -86,6 +87,9 @@ class MLVisualizerApp:
         self.nulls_var = left_builder.nulls_var
         self.learning_rate_var = getattr(left_builder, 'learning_rate_var', None)
         self.results_display = right_builder.results_display
+        
+        # Añadir tooltips informativos
+        add_tooltips_to_widgets(self)
         self.plots_frame = right_builder.plots_frame
         
         """
@@ -180,3 +184,4 @@ class MLVisualizerApp:
     def deselect_all(self):
         if self.features_listbox:
             self.features_listbox.selection_clear(0, tk.END)
+
