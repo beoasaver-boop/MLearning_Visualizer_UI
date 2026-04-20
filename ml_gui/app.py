@@ -21,7 +21,7 @@ class MLVisualizerApp:
     def __init__(self, root, model_type="logistic"):
         self.root = root
         self.model_type = model_type
-        self.root.title(f"ML Visualizer - {self.get_model_name()}")
+        self.root.title(f"MLearning Visualizer - {self.get_model_name()}")
         self.root.geometry("1400x900")
         self.root.configure(bg=DARK_THEME['bg'])
         
@@ -50,12 +50,11 @@ class MLVisualizerApp:
         self.rf_plots_manager = None
         self.plots_frame = None  # referencia al frame donde van las gráficas
         
-        # Configurar estilos y crear UI
+        # Configuración de estilos y creacipón de la UI
         setup_ttk_styles()
         self._create_ui()
         self._setup_callbacks()
-        
-        # Inicializar resultados displayer
+        # Inicializamos pantalla de resultados
         self.results_displayer = ResultsDisplayer(self)
     
     def get_model_name(self):
@@ -68,13 +67,13 @@ class MLVisualizerApp:
         return names.get(self.model_type, 'Desconocido')
     
     def _create_ui(self):
-        # Construir paneles
+        # Aqupi construímos el panel
         left_builder = LeftPanelBuilder(self)
         right_builder = RightPanelBuilder(self)
         left_panel = left_builder.build()
         right_panel = right_builder.build()
         
-        # Guardar referencias
+        # Se guardan las referencias
         self.file_label = left_builder.file_label
         self.features_listbox = left_builder.features_listbox
         self.target_var = left_builder.target_var
@@ -89,7 +88,12 @@ class MLVisualizerApp:
         self.results_display = right_builder.results_display
         self.plots_frame = right_builder.plots_frame
         
-        # Crear el manager de gráficas adecuado según el modelo
+        """
+        Se crea el manager adecuado según el modelo, caso randomF:
+            Creará una pantalla nueva con la clase rf_plots
+        Caso contrario
+            Creará pantalla de plots por defecto
+        """
         if self.model_type == 'random_forest':
             # Si ya existe algún widget en plots_frame, lo eliminamos (por si acaso)
             for widget in self.plots_frame.winfo_children():
@@ -113,7 +117,7 @@ class MLVisualizerApp:
             columns = self.automl.get_columns()
             for col in columns:
                 self.features_listbox.insert(tk.END, col)
-            self.update_status(f"✅ {len(columns)} columnas cargadas")
+            self.update_status(f"{len(columns)} columnas cargadas")
     
     def update_status(self, message):
         if self.status_text:
