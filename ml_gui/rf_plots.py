@@ -5,7 +5,6 @@ Muestra: evolución de árboles, importancia de características,
 matriz de confusión, y curvas de aprendizaje.
 """
 
-import tkinter as tk
 import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -22,7 +21,7 @@ class RandomForestPlotsManager:
         self._create_subplots()
         self.canvas = FigureCanvasTkAgg(self.fig, master=parent_frame)
         self.canvas.draw()
-        self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True)
         
         # Datos para actualización
         self.n_estimators_history = []
